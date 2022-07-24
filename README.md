@@ -1,4 +1,4 @@
-# **ElasticSearch와 Kibana를 활용하여 Twitter 로그 분석**
+# **Kafka를 활용한 실시간 Twitter log 데이터 분석 및 시각화**
 
 ## Overview
 
