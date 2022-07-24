@@ -6,7 +6,7 @@ Here you want to write a short overview of the goals of your project and how it 
 
 ### Data Architecture
 
-![Example architecture image](assets/220621_twitter_log_kibana.png)
+![Example architecture image](assets/220724_kafka_twitter_log.png)
 
 If you decide to include this, you should also talk a bit about why you chose the architecture and tools you did for this project.
 
