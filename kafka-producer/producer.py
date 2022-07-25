@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 from tweepy import Stream
 from kafka import KafkaProducer
-from json import dumps, loads
+from json import loads
 from time import sleep
 
 # load .env
@@ -17,13 +17,12 @@ api_key = os.environ.get("api_key")
 api_secret = os.environ.get("api_secret")
 
 producer = KafkaProducer(
-    bootstrap_servers=['192.168.200.169:9091']
+    bootstrap_servers=["{}:9091".format(os.environ.get("bootstrap_servers_ip"))]
 )
 
 #Topic
 topic_name = "twitter"
 
-# https://stackoverflow.com/questions/69338089/cant-import-streamlistener
 class StdOutListener(Stream):
 
     def on_data(self, data):
@@ -34,11 +33,6 @@ class StdOutListener(Stream):
             sleep(0.5)
         except Exception as e:
             print(e)
-        # producer.send(topic_name, raw_data['text'].encode('utf-8'))
-        return True
-
-    def on_error(self, status):
-        print(status)
 
 twitter_stream = StdOutListener(api_key, api_secret, access_token, access_token_secret)
 twitter_stream.filter(track=["house"])

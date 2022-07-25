@@ -66,6 +66,7 @@ Directions or anything needed before running the project.
     $pip3 install kafka-python
     $pip3 install python-twitter
     $pip3 install tweepy
+    $pip3 install python-dotenv
     ```
 3. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 `kafka-producer/producer.py`파일)
 4. To clean up at the end, run script: `python cleanup.py`
