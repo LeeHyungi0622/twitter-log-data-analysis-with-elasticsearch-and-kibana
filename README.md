@@ -56,11 +56,6 @@ Directions or anything needed before running the project.
     ```zsh
     $docker-compose up -d
     ```
-3. Producer docker container에 접속해서 로그 데이터를 보낼 Topic 생성하기 
-    ```zsh
-    $docker exec -it producer_host /bin/bash
-    $kafka-console-producer --bootstrap-server kafka1:9091 --topic twitter
-    ```
 3. 우선 Python 스크립트 실행에 필요한 패키지를 설치
     ```zsh
     $pip3 install kafka-python
@@ -68,8 +63,22 @@ Directions or anything needed before running the project.
     $pip3 install tweepy
     $pip3 install python-dotenv
     ```
-3. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 `kafka-producer/producer.py`파일)
-4. To clean up at the end, run script: `python cleanup.py`
+4. .env 파일 작성
+    ```zsh
+    access_token = "[twitter access token]"
+    access_token_secret = "[twitter access token secret]"
+    api_key = "[twitter api key]"
+    api_secret = "[twitter api secret key]"
+    bootstrap_servers_ip = "[bootstrap servers ip addr]"
+    
+    (이하 생략)
+    ```
+3. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 `kafka-producer/producer.py 및 kafka-consumer/consumer.py`파일)
+    ```zsh
+    $python3 kafka-producer/producer.py
+    $python3 kafka-consumer/consumer.py
+    ```
+
 
 ## Lessons Learned
 
