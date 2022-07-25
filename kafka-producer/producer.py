@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 from tweepy import Stream
 from kafka import KafkaProducer
-import json
+from json import dumps, loads
 from time import sleep
 
 # load .env
@@ -21,15 +21,16 @@ producer = KafkaProducer(
 )
 
 #Topic
-topic_name = "__confluent.support.metrics"
+topic_name = "twitter"
 
 # https://stackoverflow.com/questions/69338089/cant-import-streamlistener
 class StdOutListener(Stream):
+
     def on_data(self, data):
-        raw_data = json.loads(data)
-        print('log data ::', raw_data['text'])
+        raw_data = loads(data)
+        print('log data ::', raw_data['text'].encode('utf-8'))
         try:
-            producer.send(topic_name, raw_data['text'])
+            producer.send(topic_name, value = raw_data['text'].encode('utf-8'))
             sleep(0.5)
         except Exception as e:
             print(e)
