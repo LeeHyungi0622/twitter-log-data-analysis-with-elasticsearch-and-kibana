@@ -17,7 +17,7 @@ api_key = os.environ.get("api_key")
 api_secret = os.environ.get("api_secret")
 
 producer = KafkaProducer(
-    bootstrap_servers=['localhost:9091']
+    bootstrap_servers=['192.168.200.169:9091']
 )
 
 #Topic

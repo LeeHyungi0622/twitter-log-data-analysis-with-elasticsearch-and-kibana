@@ -89,3 +89,9 @@ https://stackoverflow.com/questions/58640045/kafka-python-raise-unrecognizedbrok
 kafka.errors.KafkaTimeoutError: KafkaTimeoutError: Failed to update metadata after 60.0 secs.
 ```
 예상할 수 있는 문제 : broker에 연결이 안되는 상황
+
+localhost 환경에서 docker의 broker로부터 consume이 안되었던 이슈
+
+localhost나 127.0.0.1로 지정하는 경우, multiple brokers 환경을 구성해서 kafka를 사용할 수 없다.
+
+https://hub.docker.com/r/wurstmeister/kafka/
