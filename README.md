@@ -56,15 +56,18 @@ Directions or anything needed before running the project.
     ```zsh
     $docker-compose up -d
     ```
-    
-3. 우선 코드 실행에 필요한 패키지를 설치
+3. Producer docker container에 접속해서 로그 데이터를 보낼 Topic 생성하기 
+    ```zsh
+    $docker exec -it producer_host /bin/bash
+    $kafka-console-producer --bootstrap-server kafka1:9091 --topic twitter
+    ```
+3. 우선 Python 스크립트 실행에 필요한 패키지를 설치
     ```zsh
     $pip3 install kafka-python
     $pip3 install python-twitter
     $pip3 install tweepy
     ```
-
-3. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 ``)
+3. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 `kafka-producer/producer.py`파일)
 4. To clean up at the end, run script: `python cleanup.py`
 
 ## Lessons Learned
@@ -74,3 +77,15 @@ It's good to reflect on what you learned throughout the process of building this
 ## Contact
 
 Please feel free to contact me if you have any questions at: LinkedIn, Twitter
+
+
+```zsh
+kafka.errors.UnrecognizedBrokerVersion: UnrecognizedBrokerVersion
+```
+solution)
+https://stackoverflow.com/questions/58640045/kafka-python-raise-unrecognizedbrokerversion-error
+
+```zsh
+kafka.errors.KafkaTimeoutError: KafkaTimeoutError: Failed to update metadata after 60.0 secs.
+```
+예상할 수 있는 문제 : broker에 연결이 안되는 상황
