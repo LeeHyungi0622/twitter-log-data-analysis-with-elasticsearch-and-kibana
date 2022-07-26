@@ -62,6 +62,8 @@ Directions or anything needed before running the project.
     $pip3 install python-twitter
     $pip3 install tweepy
     $pip3 install python-dotenv
+    <!-- consumer에서 Logstash(ELK docker container)로 로그 데이터를 전송할 때 사용 -->
+    $pip3 install python-logstash-async
     ```
 4. .env 파일 작성
     ```zsh

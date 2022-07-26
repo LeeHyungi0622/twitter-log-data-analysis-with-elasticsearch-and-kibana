@@ -3,7 +3,7 @@ import os
 from kafka import KafkaConsumer
 # consumer -> ELK docker container로 연결
 import logging
-from logging.config import fileConfig
+
 
 # load .env
 load_dotenv()
