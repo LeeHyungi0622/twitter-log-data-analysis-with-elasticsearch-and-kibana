@@ -69,7 +69,7 @@ Directions or anything needed before running the project.
     access_token_secret = "[twitter access token secret]"
     api_key = "[twitter api key]"
     api_secret = "[twitter api secret key]"
-    bootstrap_servers_ip = "[bootstrap servers ip addr]"
+    bootstrap_servers_ip = "[localhost ip addr]"
     
     (이하 생략)
     ```
