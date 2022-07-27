@@ -75,7 +75,12 @@ Directions or anything needed before running the project.
     
     (이하 생략)
     ```
-3. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 `kafka-producer/producer.py 및 kafka-consumer/consumer.py`파일)
+5. Kafka의 consumer에서 로그 데이터를 받아서 처리하게 될 ELK Stack을 docker로 구축합니다. 프로젝트 폴더의 `kafka-consumer/ELK` 위치로 이동하여 아래의 명령을 실행 
+
+    ```zsh
+    $docker-compose up -d
+    ```
+5. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 `kafka-producer/producer.py 및 kafka-consumer/consumer.py`파일)
     ```zsh
     $python3 kafka-producer/producer.py
     $python3 kafka-consumer/consumer.py
