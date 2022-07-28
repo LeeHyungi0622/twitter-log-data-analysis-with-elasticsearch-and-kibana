@@ -14,14 +14,19 @@ consumer는 두 그룹으로 나누어 Group A는 분석 및 시각화를 할 �
 
 이번 프로젝트를 통해서 데이터셋을 분석 및 시각화를 통하여 아래의 내용들에 대해 확인해볼 것 입니다.
 
-- 
-- 
+### **[Netflix 관련 트윗 데이터 실시간 분석]**
+
+- 트윗을 작성한 사용자 단말기(Source)에 대한 분석
+- 가장 좋아요를 많이 받은 트윗 메시지
+- 트위터 사용자 언어(Language)에 대한 분석
+- 트위터 사용자 지역(Location)에 대한 분석
+- 트위터 사용자의 언어 및 지역에 대한 교차 분석
 
 <br/>
 
 ## **Data Architecture**
 
-![Example architecture image](assets/220724_kafka_twitter_log.png)
+![Example architecture image](assets/220729_kafka_twitter_log.png)
 
 ### **(1) Kafka를 선택한 이유**
 
@@ -40,7 +45,78 @@ Kafka의 장점 중 하나는 Partition의 데이터를 consumer에서 읽어도
 
 ## **Data Visualization**
 
-![Example dashboard image](example-dashboard.png)
+<table>
+    <tr>
+        <th style="text-align:center">NO</th>
+        <th style="text-align:center">Image</th>
+        <th style="text-align:center">Description</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_count_quicksight.png" alt="국내에서 UFO가 발견된 시기와 장소에 대한 정보" />
+        </td>
+        <td>
+            <b>[국내에서 UFO가 발견된 장소와 횟수 대한 정보]</b><br/>
+            <small>국내에서는 서울 3건, 부산 2건, 그 외 지역에서 8건, 총 13건 UFO가 관측되었습니다.</small>     
+        </td>
+    </tr>
+    <tr>
+        <td>1-1</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_geo_location.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
+        </td>
+        <td>
+        <b>[국내 UFO 관측 위치를 경도(Longitude), 위도(Latitude)로 지도에 표시]</b>
+        <br/>
+        <small>국내에서는 지도에 표기된 위치에서 UFO가 관측되었다. republic of south korea로 도시명이 명기된 지역의 경우, 경도와 위도를 확인한 결과, 전주 지역에서 관측된 것으로 확인되었습니다.</small>
+        </td>
+    </tr>
+    <tr>
+        <td>1-2</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_shape.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
+        </td>
+        <td>
+            <b>[국내에서 관측된 UFO의 모양]</b>
+            <br/>
+            <small>국내에서 관측된 UFO의 모양은 disk 형태가 3회로 가장 많았으며, light 형태와 cone 형태가 2회로, 그 다음으로 많이 관측되었다. 가장 많이 관측된 서울 지역에서는 관측된 3회 전부 다 다른 모양으로 관측이 되었고, 부산도 관측된 2회 모두 다른 형태로 관측되었음을 확인할 수 있었습니다.</small>
+        </td>
+    </tr>
+    <tr>
+        <td>1-1</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_worldwide_region.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
+        </td>
+        <td>
+        <b>[UFO 목격 가능성이 가장 높은 지역]</b>
+            <br/>
+            <small>전체 UFO 관측 데이터를 기준으로 UFO가 가장 많이 목격된 지역은 미국(us) 12,780건 관측되었으며, 그 다음은 캐나다(ca)로, 645건이 관측되었습니다. </small>
+        </td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_worldwide_season.png" alt="UFO가 가장 많이 발견된 월 정보" />
+        </td>
+        <td>
+            <b>[UFO가 특정 달에 많이 목격되는지에 대한 분석]</b>
+            <br/>
+            <small>UFO가 가장 많이 목격된 달은 7월 4872건, 8월 4632건, 6월 4432건 순으로 많았다. 우리나라를 기준으로 계절이 여름인 달에 UFO가 많이 관측됨을 확인할 수 있었습니다.</small>
+        </td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_description.png" alt="" />
+        </td>
+        <td>
+            <b>[가장 일반적으로 묘사되는 UFO의 모양에 대한 분석]</b>
+            <br/>
+            <small>관측된 UFO의 모양은 빛(광선)의 형태(21%)로, 가장 많이 관측되었다. 그 다음으로는 삼각형 형태(10%)로 관측되었으며, 원형 형태(10%)로의 관측이 그 다음으로 많이 관측되었습니다.</small>
+        </td>
+    </tr>
+</table>
 
 ## Prerequisites
 
@@ -85,7 +161,44 @@ Directions or anything needed before running the project.
     $python3 kafka-producer/producer.py
     $python3 kafka-consumer/consumer.py
     ```
+6. Kafka cluster 모니터링을 위해 `burrow`를 사용해서 모니터링 하도록 합니다. (burrow에 대한 개념과 설치에 대한 내용은 아래의 링크를 참고해주세요)
 
+    https://leehyungi0622.github.io/2022/07/28/202207/220728_datapipeline_study/
+
+    kafka cluster의 docker-compose.yml 파일내에 burrow 설정에 대한 부분이 포함되어 있기 때문에 아래의 URL을 통해서 kafka consumer의 LAG 상태를 모니터합니다.
+
+    ```zsh
+    # health check
+    http://localhost:8000/burrow/admin
+
+    output : 
+    GOOD
+
+    # cluster check
+    http://localhost:8000/v3/kafka
+
+    output : 
+    {"error":false,"message":"cluster list returned","clusters":["local"],"request":{"url":"/v3/kafka","host":"9c4398e22e9e"}}
+
+    # topic check
+    http://localhost:8000/v3/kafka/local/topic
+
+    output : 
+    {"error":false,"message":"topic list returned","topics":["__consumer_offsets","twitter"],"request":{"url":"/v3/kafka/local/topic","host":"9c4398e22e9e"}}
+
+    # consumer check
+    http://localhost:8000/v3/kafka/local/consumer
+
+    output : 
+    {"error":false,"message":"consumer list returned","consumers":["burrow-local","group1"],"request":{"url":"/v3/kafka/local/consumer","host":"9c4398e22e9e"}}
+
+    # consumer status
+    http://localhost:8000/v3/kafka/local/consumer/group1/status
+
+    output : 
+    {"error":false,"message":"consumer status returned","status":{"cluster":"local","group":"group1","status":"OK","complete":0,"partitions":[],"partition_count":3,"maxlag":{"topic":"twitter","partition":1,"owner":"/172.23.0.1","client_id":"kafka-python-2.0.2","status":"OK","start":{"offset":18,"timestamp":1659020806276,"observedAt":1659020809000,"lag":0},"end":{"offset":44,"timestamp":1659021517277,"observedAt":1659021517000,"lag":466},"current_lag":466,"complete":0.7},"totallag":1166},"request":{"url":"/v3/kafka/local/consumer/group1/status","host":"9c4398e22e9e"}}
+
+    ```
 
 ## Lessons Learned
 

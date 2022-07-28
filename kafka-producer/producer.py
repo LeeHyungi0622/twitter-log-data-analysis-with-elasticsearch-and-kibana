@@ -27,12 +27,12 @@ class StdOutListener(Stream):
 
     def on_data(self, data):
         raw_data = loads(data)
-        print('log data ::', raw_data['text'].encode('utf-8'))
+        print('raw_data ::', raw_data)
         try:
-            producer.send(topic_name, value = raw_data['text'].encode('utf-8'))
+            producer.send(topic_name, bytes(str(raw_data), 'utf-8'))
             sleep(0.5)
         except Exception as e:
             print(e)
 
 twitter_stream = StdOutListener(api_key, api_secret, access_token, access_token_secret)
-twitter_stream.filter(track=["house"])
+twitter_stream.filter(track=["ukraine", "russia", "war"])

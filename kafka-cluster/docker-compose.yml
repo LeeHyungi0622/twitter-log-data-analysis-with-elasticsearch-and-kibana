@@ -1,5 +1,20 @@
 version: "3.5"
 services:
+  burrow:
+    build: ./Burrow
+    volumes:
+      - ${PWD}/Burrow/docker-config:/etc/burrow/
+      - ${PWD}/Burrow/tmp:/var/tmp/burrow
+    ports:
+      - 8000:8000
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+      - kafka1
+      - kafka2
+      - kafka3
+    restart: always
   zk1:
     image: wurstmeister/zookeeper
     restart: always
