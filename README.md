@@ -18,11 +18,13 @@
 
 ### **[Netflix 관련 트윗 데이터 실시간 분석]**
 
-- 트윗을 작성한 사용자 단말기(Source)에 대한 분석
-- 가장 좋아요를 많이 받은 트윗 메시지
-- 트위터 사용자 언어(Language)에 대한 분석
-- 트위터 사용자 지역(Location)에 대한 분석
-- 트위터 사용자의 언어 및 지역에 대한 교차 분석
+- Burrow에서 ES에 적재된 데이터
+- 수집된 트윗의 레코드 수
+- 트윗을 작성한 사용자 단말기(Source) 정보
+- 수집된 트윗의 사용자 언어(Language) 정보
+- 수집된 트윗의 사용자 지역(Location) 정보
+- 수집된 트윗의 hash tag 정보
+- 
 
 <br/>
 
@@ -50,6 +52,8 @@ Kafka의 twitter topic을 partition은 1, replication은 3으로 구성하여, �
 
 ## **Data Visualization**
 
+데이터 시각화는 `ukraine`, `russia`, `war`와 관련된 twit 데이터를 기반으로 하였습니다.
+
 <table>
     <tr>
         <th style="text-align:center">NO</th>
@@ -63,62 +67,62 @@ Kafka의 twitter topic을 partition은 1, replication은 3으로 구성하여, �
         </td>
         <td>
             <b>[Burrow에서 ES에 적재된 데이터를 Grafana를 활용해서 시계열 그래프로 시각화]</b><br/>
-            <small>Consumer의 lag을 시계열 그래프로 시각화해서 분석했을때, </small>     
+            <small>시각화된 그래프를 분석해보면, lag 값이 중간 중간에 상향하는 경향이 있긴 하지만, 대체적으로 0으로 수렴해서 유지되는 경향이 있기 때문에 Kafka에서 유입된 데이터가 consumer에서 소비되는데 문제가 없다는 것을 알 수 있습니다.<br/> <b>(health check: GOOD)</b></small>     
         </td>
     </tr>
     <tr>
-        <td>1-1</td>
+        <td>2</td>
         <td>
-            <img src="assets/220705_ufo_sighting_geo_location.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
+            <img src="assets/220730_twit_record_count.png" alt="수집된 twit의 총 레코드 수" />
         </td>
         <td>
-        <b>[국내 UFO 관측 위치를 경도(Longitude), 위도(Latitude)로 지도에 표시]</b>
+        <b>[수집된 twit의 총 레코드 수]</b>
         <br/>
-        <small>국내에서는 지도에 표기된 위치에서 UFO가 관측되었다. republic of south korea로 도시명이 명기된 지역의 경우, 경도와 위도를 확인한 결과, 전주 지역에서 관측된 것으로 확인되었습니다.</small>
-        </td>
-    </tr>
-    <tr>
-        <td>1-2</td>
-        <td>
-            <img src="assets/220705_ufo_sighting_shape.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
-        </td>
-        <td>
-            <b>[국내에서 관측된 UFO의 모양]</b>
-            <br/>
-            <small>국내에서 관측된 UFO의 모양은 disk 형태가 3회로 가장 많았으며, light 형태와 cone 형태가 2회로, 그 다음으로 많이 관측되었다. 가장 많이 관측된 서울 지역에서는 관측된 3회 전부 다 다른 모양으로 관측이 되었고, 부산도 관측된 2회 모두 다른 형태로 관측되었음을 확인할 수 있었습니다.</small>
-        </td>
-    </tr>
-    <tr>
-        <td>1-1</td>
-        <td>
-            <img src="assets/220705_ufo_sighting_worldwide_region.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
-        </td>
-        <td>
-        <b>[UFO 목격 가능성이 가장 높은 지역]</b>
-            <br/>
-            <small>전체 UFO 관측 데이터를 기준으로 UFO가 가장 많이 목격된 지역은 미국(us) 12,780건 관측되었으며, 그 다음은 캐나다(ca)로, 645건이 관측되었습니다. </small>
+        <small>수집된 트윗의 총 레코드 수는 37,947개 입니다.</small>
         </td>
     </tr>
     <tr>
         <td>3</td>
         <td>
-            <img src="assets/220705_ufo_sighting_worldwide_season.png" alt="UFO가 가장 많이 발견된 월 정보" />
+            <img src="assets/220730_user_terminal_cellphone.png" alt="수집된 트윗의 사용자 단말기 정보" />
         </td>
         <td>
-            <b>[UFO가 특정 달에 많이 목격되는지에 대한 분석]</b>
+            <b>[수집된 트윗의 사용자 단말기 정보]</b>
             <br/>
-            <small>UFO가 가장 많이 목격된 달은 7월 4872건, 8월 4632건, 6월 4432건 순으로 많았다. 우리나라를 기준으로 계절이 여름인 달에 UFO가 많이 관측됨을 확인할 수 있었습니다.</small>
+            <small>안드로이드 폰을 통해 트윗하는 사용자가 37.79%로 가장 높았으며, 그 다음으로는 PC 웹을 통해 트윗을 하는 사용자가 28.46%로 두 번째, 그 다음으로 26.78% 사용자가 iPhone을 통해 트윗을 하는 것으로 확인이 되었습니다.</small>
         </td>
     </tr>
     <tr>
         <td>4</td>
         <td>
-            <img src="assets/220705_ufo_sighting_description.png" alt="" />
+            <img src="assets/220730_twit_user_language.png" alt="수집된 트윗의 사용자 언어 정보" />
         </td>
         <td>
-            <b>[가장 일반적으로 묘사되는 UFO의 모양에 대한 분석]</b>
+        <b>[수집된 트윗의 사용자 언어 정보]</b>
             <br/>
-            <small>관측된 UFO의 모양은 빛(광선)의 형태(21%)로, 가장 많이 관측되었다. 그 다음으로는 삼각형 형태(10%)로 관측되었으며, 원형 형태(10%)로의 관측이 그 다음으로 많이 관측되었습니다.</small>
+            <small>수집된 트윗의 사용자 언어를 분석해보면, 영어(en)를 사용하는 사용자가 56.9%로 가장 많았으며, 그 외의 언어가 24.6%로 두 번째로 많았고, 그 다음으로 독일어(de)가 12.05%로 많은 비중을 차지하고 있음을 확인 하였습니다. </small>
+        </td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>
+            <img src="assets/220730_twit_user_country.png" alt="트윗의 사용자 국가 정보" />
+        </td>
+        <td>
+            <b>[수집된 트윗의 사용자 국가 정보]</b>
+            <br/>
+            <small>수집된 트윗의 사용자 국가는 우크라이나(Україна, Ukraine)가 406개로 가장 많았으며, 미국이 337개로 두 번째, 영국이 190개로 그 다음으로 많았습니다.</small>
+        </td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td>
+            <img src="assets/220730_twit_hash_tag.png" alt="트윗의 해시태그 정보" />
+        </td>
+        <td>
+            <b>[수집된 트윗의 해시태그 정보]</b>
+            <br/>
+            <small>수집된 트윗의 해시태그 중 Ukraine이 123개, Russia가 12개, Zelensky는 11개, UkraineWar가 8개 순으로 많이 집계되었다.</small>
         </td>
     </tr>
 </table>
