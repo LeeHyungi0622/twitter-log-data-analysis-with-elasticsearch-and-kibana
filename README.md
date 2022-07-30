@@ -2,9 +2,11 @@
 
 ## **Overview**
 
-이번 프로젝트에서는 로컬 환경에서 docker를 사용하여 Kafka Cluster를 구성하였습니다. 이전에 구축하였던 온/습도 센서 데이터를 실시간으로 받아서 처리하는 파이프라인에서는 데이터 파이프라인의 복잡도가 증가(`Kinesis data stream의 producer와 consumer가 증가`)됨에 따라 발생될 수 있는 문제로, Kinesis data stream 서비스 사용에 대한 비용증가 문제가 있었는데, 그 해결책으로 `직접 Kafka를 구축해서 운영`하거나 `AWS의 MSK(Kafka 완전 관리형) 서비스를 사용하여 관리 및 운영`하는 해결책에 대해서 정리를 했었는데, 이번에는 그 중에서 직접 Kafka를 로컬 환경에서 직접 구축하여 실시간 로그 데이터 처리 및 모니터링 할 수 있도록 구성해보았습니다. 
+이번 프로젝트에서는 로컬 환경에서 docker로 Kafka 클러스터를 구성하고, Consumer에서 ELK 스택의 docker 컨테이너로 데이터를 전송 및 처리되는 구조로 구성하여, 실시간으로 전송되는 Twitter 로그 데이터가 처리하도록 하였습니다. 
 
-consumer는 두 그룹으로 나누어 Group A는 분석 및 시각화를 할 수 있도록 ES에 데이터를 적재하고 Kibana를 통해 데이터를 시각화하며, Group B는 데이터를 백업할 용도로 Hadoop의 HDFS에 데이터를 백업할 수 있도록 구성하였습니다.
+더 나아가 Kafka Consumer lag를 모니터링하기 위해서 Burrow를 구성하고, Burrow의 데이터를 시각화하기 위해 Telegraf를 통해 ES에 Burrow의 데이터를 적재하여, Grafana를 통해 시각화하여 대시보드를 구성하도록 하였습니다.
+
+이전에 구축하였던 온/습도 센서 데이터를 실시간으로 받아서 처리하는 파이프라인에서는 데이터 파이프라인의 복잡도가 증가(`Kinesis data stream의 producer와 consumer가 증가`)됨에 따라 발생될 수 있는 문제로, Kinesis data stream 서비스 사용에 대한 비용증가 문제가 있었는데, 그 해결책으로 `직접 Kafka를 구축해서 운영`하거나 `AWS의 MSK(Kafka 완전 관리형) 서비스를 사용하여 관리 및 운영`하는 해결책에 대해서 정리를 했었는데, 이번에는 그 중에서 직접 Kafka를 로컬 환경에서 직접 구축하여 실시간 로그 데이터 처리 및 모니터링을 할 수 있도록 구성해보았습니다. 
 
 ## **Dataset**
 
@@ -202,7 +204,9 @@ Directions or anything needed before running the project.
 
 ## Lessons Learned
 
-It's good to reflect on what you learned throughout the process of building this project. Here you might discuss what you would have done differently if you had more time/money/data. Did you end up choosing the right tools or would you try something else next time?
+
+
+향후에는 consumer를 두 그룹으로 나누어 Group A는 본 프로젝트에서와 같이 분석 및 시각화를 할 수 있도록 ES에 데이터를 적재하고 Kibana를 통해 데이터를 시각화하며, Group B는 데이터를 백업할 용도로 Hadoop의 HDFS에 데이터를 백업할 수 있도록 구성하도록 해 볼 것입니다.
 
 ## Contact
 
