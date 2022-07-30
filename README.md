@@ -20,10 +20,11 @@
 
 - Burrow에서 ES에 적재된 데이터
 - 수집된 트윗의 레코드 수
-- 트윗을 작성한 사용자 단말기(Source) 정보
-- 수집된 트윗의 사용자 언어(Language) 정보
-- 수집된 트윗의 사용자 지역(Location) 정보
-- 수집된 트윗의 hash tag 정보
+- 트윗을 작성한 사용자 단말기 정보
+- 수집된 트윗의 사용자 언어 정보
+- 수집된 트윗의 사용자 국가 정보
+- 수집된 트윗의 해시태그 정보
+- 수집된 트윗의 해시태그와 언어와의 관계
 - 
 
 <br/>
@@ -125,16 +126,38 @@ Kafka의 twitter topic을 partition은 1, replication은 3으로 구성하여, �
             <small>수집된 트윗의 해시태그 중 Ukraine이 123개, Russia가 12개, Zelensky는 11개, UkraineWar가 8개 순으로 많이 집계되었다.</small>
         </td>
     </tr>
+    <tr>
+        <td>7</td>
+        <td>
+            <img src="assets/220730_hash_tag_language.png" alt="트윗의 해시태그와 언어와의 관계" />
+        </td>
+        <td>
+            <b>[수집된 트윗의 해시태그와 언어와의 관계]</b>
+            <br/>
+            <small>해시태그 중 가장 많은 비중을 차지한 Ukraine을 포함한 트윗은 영어(en, 711개), 프랑스어(fr, 113개), 독일어(fr, 73개) 순으로 가장 많이 작성이 되었다. 그리고 그 다음으로 가장 많은 해시태그인 Russia는 영어(en, 491개)로 가장 많았으며, 그 외의 언어로 80개가 가장 많았다. </small>
+        </td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>
+            <img src="assets/220730_language_location_relation.png" alt="트윗의 언어와 국가와의 관계" />
+        </td>
+        <td>
+            <b>[수집된 트윗의 언어와 국가간의 관계]</b>
+            <br/>
+            <small>트윗을 작성한 언어는 영어(en), 독일어(de), 프랑스(fr) 순으로 가장 많은 비중을 차지하는데, 국가로는 영어는 미국, 영국, 우크라이나 순으로 가장 많은 비중을 차지하고 있습니다. 독일어는 사용된 상위 3개의 국가가 모두 독일이며, 프랑스 또한 상위 3개의 국가가 모두 프랑스로 집계되었습니다.</small>
+        </td>
+    </tr>
 </table>
 
-## Prerequisites
-
-Directions or anything needed before running the project.
+## **Prerequisites**
 
 - Docker Desktop 설치
-- 코드를 실행할 IDE (VSCODE, Sublime Text 등) 준비
+- 코드를 실행할 IDE (VSCODE, Sublime Text 등) 설치
 
-## How to Run This Project 
+<br/>
+
+## **How to Run This Project** 
 
 1. Docker Desktop이 실행 상태인지 확인
 
@@ -276,6 +299,8 @@ Directions or anything needed before running the project.
 10. Kibana를 활용해서 `ukraine-russia-war-1`에 적재된 데이터를 시각화합니다.
 
 ## Lessons Learned
+
+이번 프로젝트를 통해 docker의 사용에 대해서 
 
 향후에는 consumer를 두 그룹으로 나누어 Group A는 본 프로젝트에서와 같이 분석 및 시각화를 할 수 있도록 ES에 데이터를 적재하고 Kibana를 통해 데이터를 시각화하며, Group B는 데이터를 백업할 용도로 Hadoop의 HDFS에 데이터를 백업할 수 있도록 구성하도록 해 볼 것입니다.
 
