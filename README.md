@@ -130,40 +130,17 @@ Directions or anything needed before running the project.
 ## How to Run This Project 
 
 1. Docker Desktop이 실행 상태인지 확인
+
 2. Terminal에서 프로젝트 폴더 중 `kafka-cluster`폴더의 위치로 이동하고, 아래의 명령을 실행
     ```zsh
     $docker-compose up -d
     ```
-3. 우선 Python 스크립트 실행에 필요한 패키지를 설치
-    ```zsh
-    $pip3 install kafka-python
-    $pip3 install python-twitter
-    $pip3 install tweepy
-    $pip3 install python-dotenv
-    <!-- consumer에서 Logstash(ELK docker container)로 로그 데이터를 전송할 때 사용 -->
-    $pip3 install python-logstash-async
-    ```
-4. .env 파일 작성
-    ```zsh
-    access_token = "[twitter access token]"
-    access_token_secret = "[twitter access token secret]"
-    api_key = "[twitter api key]"
-    api_secret = "[twitter api secret key]"
-    bootstrap_servers_ip = "[localhost ip addr]"
-    
-    (이하 생략)
-    ```
-5. Kafka의 consumer에서 로그 데이터를 받아서 처리하게 될 ELK Stack을 docker로 구축합니다. 프로젝트 폴더의 `kafka-consumer/ELK` 위치로 이동하여 아래의 명령을 실행 
 
+3. Terminal에서 프로젝트 폴더 중 `kafka-consumer/ELK`폴더의 위치로 이동하고, 아래의 명령을 실행
     ```zsh
     $docker-compose up -d
-    ```
-5. 작성한 producer Python script를 실행 (프로젝트 디렉토리의 `kafka-producer/producer.py 및 kafka-consumer/consumer.py`파일)
-    ```zsh
-    $python3 kafka-producer/producer.py
-    $python3 kafka-consumer/consumer.py
-    ```
-6. Kafka cluster 모니터링을 위해 `burrow`를 사용해서 모니터링 하도록 합니다. (burrow에 대한 개념과 설치에 대한 내용은 아래의 링크를 참고해주세요)
+    ```    
+4. Kafka cluster 모니터링을 위해 `burrow`를 사용해서 모니터링 하도록 합니다. (burrow에 대한 개념과 설치에 대한 내용은 아래의 링크를 참고해주세요)
 
     https://leehyungi0622.github.io/2022/07/28/202207/220728_datapipeline_study/
 
@@ -199,19 +176,98 @@ Directions or anything needed before running the project.
 
     output : 
     {"error":false,"message":"consumer status returned","status":{"cluster":"local","group":"group1","status":"OK","complete":0,"partitions":[],"partition_count":3,"maxlag":{"topic":"twitter","partition":1,"owner":"/172.23.0.1","client_id":"kafka-python-2.0.2","status":"OK","start":{"offset":18,"timestamp":1659020806276,"observedAt":1659020809000,"lag":0},"end":{"offset":44,"timestamp":1659021517277,"observedAt":1659021517000,"lag":466},"current_lag":466,"complete":0.7},"totallag":1166},"request":{"url":"/v3/kafka/local/consumer/group1/status","host":"9c4398e22e9e"}}
+    ```
 
+5. burrow의 consumer lag 데이터를 시각화(`시계열 그래프`)하기 위해 Telegraf를 통해 ES에 적재해야 합니다. 그래서 우선적으로 Telegraf 설정 파일을 수정하고, 실행해야 합니다.
+
+    ```zsh
+    $cd /usr/local/Cellar/telegraf/1.23.3/bin
+    $telegraf config > telegraf.conf
+    ```
+
+    `[설정파일 수정]`
+
+    ```zsh
+    ###############################################################################
+    #                            OUTPUT PLUGINS                                   #
+    ###############################################################################
+
+    [[inputs.burrow]]
+    servers = ["http://localhost:8000"]
+    topics_exclude = [ "__consumer_offsets" ]
+    groups_exclude = ["console-*"]
+    api_prefix = "/v3/kafka"
+
+    [[outputs.elasticsearch]]
+    urls = [ "http://localhost:9200" ] 
+    timeout = "5s"
+    enable_sniffer = false
+    health_check_interval = "10s"
+    index_name = "burrow-%Y.%m.%d" 
+    manage_template = false
+    username = "[elasticsearch username]"
+    password = "[elasticsearch password]"
+    <!-- elasticsearch username/password 설정에 대한 부분도 주석 제거 및 입력-->
+    ```
+
+    이제 telegraf를 아래의 명령으로 실행시켜줍니다.
+
+    ```zsh
+    $telegraf --config telegraf.conf
+    ```
+
+6. `http://localhost:5601/`로 접속하여 elasticsearch에서 logstash에 정의한 index와 telegraf.conf 파일에서 정의한 index_name(`outputs.elasticsearch`)을 `Management>Dev Tools>Console`에서 아래 명령을 통해 생성해줍니다.
+
+    ```zsh
+    PUT /ukraine-russia-war-1
+    PUT /burrow-YYYY.MM.DD
+    ```
+
+6. 우선 Python 스크립트 실행에 필요한 패키지를 설치
+    ```zsh
+    $pip3 install kafka-python
+    $pip3 install python-twitter
+    $pip3 install tweepy
+    $pip3 install python-dotenv
+    $pip3 install beautifulsoup4
+    ```
+
+7. .env 파일 작성
+    ```zsh
+    access_token = "[twitter access token]"
+    access_token_secret = "[twitter access token secret]"
+    api_key = "[twitter api key]"
+    api_secret = "[twitter api secret key]"
+    bootstrap_servers_ip = "[localhost ip addr]"
+    
+    (이하 생략)
+    ```
+
+8. kafka-client 라이브러리를 사용해서 작성(Python)한 producer, consumer 코드를 실행합니다. (`kafka-producer/producer.py`, `kafka-consumer/consumer.py`)
+
+    ```zsh
+    $python3 producer.py
+    $python3 consumer.py
     ```
 
 ## Lessons Learned
 
-
-
 향후에는 consumer를 두 그룹으로 나누어 Group A는 본 프로젝트에서와 같이 분석 및 시각화를 할 수 있도록 ES에 데이터를 적재하고 Kibana를 통해 데이터를 시각화하며, Group B는 데이터를 백업할 용도로 Hadoop의 HDFS에 데이터를 백업할 수 있도록 구성하도록 해 볼 것입니다.
 
-## Contact
+## Issue
 
-Please feel free to contact me if you have any questions at: LinkedIn, Twitter
+(1) Kafka cluster 구성에서 컨테이너에서 사용할 환경변수들을 정의하는 부분에서 어려움이 있었습니다. producer와 consumer를 kafka-client 라이브러리를 사용해서 Python으로 작성을 했었는데, broker로부터 데이터를 받아서 consume이 되지 않아 아래의 방법으로 해결할 수 있었습니다.
 
+`solution.` dockder-compose.yml 파일에서 `KAFKA_ADVERTISED_HOST_NAME`을 localhost나 127.0.0.1로 지정하는 경우, multiple brokers 환경을 구성해서 사용할 수 없습니다. 따라서 command로 현재 할당된 IP를 확인하여, 값으로 설정하였습니다. (`KAFKA_ADVERTISED_LISTENERS에서도 localhost가 아닌 현재 할당된 IP를 넣어줘야 합니다`)
+[참고] : https://hub.docker.com/r/wurstmeister/kafka/
+
+(2) Kafka cluster 구성에서 컨테이너에서 사용할 환경변수인 `KAFKA_ADVERTISED_LISTENERS`과 `KAFKA_LISTENERS`에 대한 정의에서 어려움이 있었습니다.
+
+`KAFKA_ADVERTISED_LISTENERS`의 경우, Producer와 Consumer에게 노출할 주소이며, `KAFKA_LISTENERS`는 Kafka broker가 내부적으로 바인딩하는 주소로 사용이 됩니다. 
+
+(3) Producer에서 데이터를 보낼때 byte로 인코딩해서 전송하고, Consumer에서 byte
+
+(3) Kafka cluster와 Burrow를 연동시킬때 설정 문제
 
 ```zsh
 kafka.errors.UnrecognizedBrokerVersion: UnrecognizedBrokerVersion
