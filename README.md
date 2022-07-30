@@ -38,12 +38,15 @@ Kafka 클러스터에는 복수 개의 broker가 존재 할 수 있으며, Repli
 
 물론 AWS의 Apache Kafka 완전 관리형 서비스인 MSK를 사용하면, 별도의 관리 리소스가 불필요하기 때문에 관리 비용이 절감된다는 장점이 있지만, MSK도 오픈 소스 프로젝트인 Kafka를 기반으로한 서비스이기 때문에 직접 운영을 하면서 내부적으로 어떻게 동작을 하는지에 대한 이해가 반드시 필요하다고 생각했고, 향후에 서비스가 확장됨에 따라 서비스 이용에 대한 비용절감을 위해서 온프레미스 환경에 Kafka를 직접 구축하여 관리 및 운영을 할 수 있을 수도 있다고 생각되어 직접 구축하여 관리 및 운영해 보았습니다. 
 
-### **(2) Consumer를 2개로 구성한 이유**
+### **(2) Consumer를 한 개로 구성한 이유**
 
-Kafka의 장점 중 하나는 Partition의 데이터를 consumer에서 읽어도 데이터가 사라지지 않고, 지정한 retention 기간 및 시간까지 데이터가 유지된다는 점입니다. 
-이로인해 같은 Topic에 물려있는 복수 개의 consumer를 각기 다른 group으로 설정하거나 `auto.offset.reset=earliest`로 설정하게 되면, 각 각의 consumer group별로 topic의 데이터를 처음부터 새로 데이터를 받아서 처리할 수 있습니다. 
+Kafka로부터 넘겨받은 데이터를 ELK 스택인 한 개의 Consumer에서만 처리되기 때문에 하나의 Consumer로만 구성하였습니다.
+Kafka의 twitter topic을 partition은 1, replication은 3으로 구성하여, 총 3개의 broker에 1개의 파티션으로 구성된 topic을 leader 1, follower 2로 복제하여 ISR(In-Sync-Replica) 구성하였습니다. 이는 하나의 Kafka broker에 문제가 생기는 경우, 다른 브로커에 복제된 데이터로 복구를 하기 위해서입니다. (고가용성) 
 
-이러한 Kafka의 장점을 보여주기 위해 하나의 topic에 서로 다른 consumer gruop에 속하는 두 개의 consumer를 구성하여 데이터 재처리가 가능하도록 하였습니다. 
+또한 Kafka의 장점 중 하나는 Partition의 데이터를 하나의 consumer에서 읽어도 데이터가 사라지지 않고, 지정한 retention 기간 및 시간까지 데이터가 유지된다는 점입니다. 
+이로인해 같은 Topic에 물려있는 복수 개의 consumer를 각기 다른 group으로 설정하거나 `auto.offset.reset=earliest`로 설정하게 되면, 각 각의 consumer group별로 topic의 데이터를 처음부터 새로 데이터를 받아서 처리할 수 있습니다. 이를 통해 하나의 partition으로 구성이 되어있어도 추가적으로 하나의 consumer를 더 붙여서 다른 group으로 지정을 하게 되면, 같은 데이터를 처음부터 다시 소비하게 할 수 있습니다.
+
+만약 유입되는 데이터에 비해 데이터 소비가 원활하지 않으면(`lag 값이 크면`), partition을 늘리고 consumer를 추가하여 유입되는 데이터가 분산처리되도록 구성해야 합니다.(단, `partition을 늘리면 줄일 수 없기 때문에 유의`해야 합니다) 
 
 ## **Data Visualization**
 
@@ -56,11 +59,11 @@ Kafka의 장점 중 하나는 Partition의 데이터를 consumer에서 읽어도
     <tr>
         <td>1</td>
         <td>
-            <img src="assets/220705_ufo_sighting_count_quicksight.png" alt="국내에서 UFO가 발견된 시기와 장소에 대한 정보" />
+            <img src="assets/220730_grafana_dashboard.png" alt="Grafana dashboard" />
         </td>
         <td>
-            <b>[국내에서 UFO가 발견된 장소와 횟수 대한 정보]</b><br/>
-            <small>국내에서는 서울 3건, 부산 2건, 그 외 지역에서 8건, 총 13건 UFO가 관측되었습니다.</small>     
+            <b>[Burrow에서 ES에 적재된 데이터를 Grafana를 활용해서 시계열 그래프로 시각화]</b><br/>
+            <small>Consumer의 lag을 시계열 그래프로 시각화해서 분석했을때, </small>     
         </td>
     </tr>
     <tr>
@@ -249,6 +252,24 @@ Directions or anything needed before running the project.
     $python3 producer.py
     $python3 consumer.py
     ```
+
+9. Burrow로부터 ES에 적재된 데이터를 시계열 데이터로 시각화 하기 위해서 grafana를 설치하고, 서비스를 시작합니다.
+
+    grafana에서 새로운 데이터셋을 추가하여 ES 관련 Setting 정보를 입력해줍니다. (HTTP/URL, Auth/Basic auth, Index name, ES Version 등...) 
+
+    ```zsh
+    $brew install grafana
+    $brew tap homebrew/services
+    $brew services start grafana
+    ```
+
+    localhost:3000을 통해 grafana 서비스 페이지로 접속을 합니다.(admin/admin)
+
+    접속한 후에는 새로운 dashboard를 생성하고, 아래와 같이 Query를 setup합니다.
+
+    ![Example architecture image](assets/220730_grafana_dashboard_setting.png)
+
+10. Kibana를 활용해서 `ukraine-russia-war-1`에 적재된 데이터를 시각화합니다.
 
 ## Lessons Learned
 
