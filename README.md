@@ -300,38 +300,19 @@ Kafka의 twitter topic을 partition은 1, replication은 3으로 구성하여, �
 
 ## Lessons Learned
 
-이번 프로젝트를 통해 docker의 사용에 대해서 
+이번 프로젝트를 통해서 이론적으로 학습했던 Kafka에 대한 내용을 다시 되짚어 보고, 더 나아가 직접 consumer lag을 모니터링 하면서 운영해보는 좋은 계기가 되었던 것 같습니다.
 
-향후에는 consumer를 두 그룹으로 나누어 Group A는 본 프로젝트에서와 같이 분석 및 시각화를 할 수 있도록 ES에 데이터를 적재하고 Kibana를 통해 데이터를 시각화하며, Group B는 데이터를 백업할 용도로 Hadoop의 HDFS에 데이터를 백업할 수 있도록 구성하도록 해 볼 것입니다.
+Kafka는 실제로 고가용성을 지원하기 때문에 많은 기업에서 채택하고 있으며, 직접 Kafka 클러스터를 구축해서 사용해보니 관리되는 데이터의 양과 retention time을 고려하여 Kafka의 replication에 대한 옵션 설정을 해서 잘 관리해줘야겠다고 생각했습니다. 또한 프로젝트에서는 별도로 producer의 acks 설정값을 주지 않았기 때문에 default로 1이 설정 되어, 프로듀서가 리더 파티션으로 메시지를 전송하고, 리더로부터 ack를 기다리도록 설정이 되었습니다. 하지만 향후에 다른 프로젝트를 하게 될 때에는 필요에 따라 안정성이 높지만 속도가 느린 acks=-1 값과 min.insync.replicas 값 설정을 통하여 좀 더 안정성 있는 파이프라인을 구축해봐야겠다고 생각했습니다.
+
+이번 데이터 파이프라인을 구축하면서 향후에는 consumer를 두 그룹으로 나누어 Group A는 본 프로젝트에서와 같이 분석 및 시각화를 할 수 있도록 ES에 데이터를 적재하고 Kibana를 통해 데이터를 시각화하며, Group B는 데이터를 백업할 용도로 Hadoop의 HDFS에 데이터를 백업할 수 있도록 구성하도록 해 볼 것입니다.
 
 ## Issue
 
-(1) Kafka cluster 구성에서 컨테이너에서 사용할 환경변수들을 정의하는 부분에서 어려움이 있었습니다. producer와 consumer를 kafka-client 라이브러리를 사용해서 Python으로 작성을 했었는데, broker로부터 데이터를 받아서 consume이 되지 않아 아래의 방법으로 해결할 수 있었습니다.
+(1) Kafka cluster 구성에서 컨테이너에서 사용할 환경변수들을 정의하는 부분에서 어려움이 있었습니다. producer와 consumer를 kafka-client 라이브러리를 사용해서 Python으로 작성을 했었는데, consumer에서 제대로 consume이 되지 않아 아래의 방법으로 해결할 수 있었습니다.
 
-`solution.` dockder-compose.yml 파일에서 `KAFKA_ADVERTISED_HOST_NAME`을 localhost나 127.0.0.1로 지정하는 경우, multiple brokers 환경을 구성해서 사용할 수 없습니다. 따라서 command로 현재 할당된 IP를 확인하여, 값으로 설정하였습니다. (`KAFKA_ADVERTISED_LISTENERS에서도 localhost가 아닌 현재 할당된 IP를 넣어줘야 합니다`)
+`solution)` dockder-compose.yml 파일에서 `KAFKA_ADVERTISED_HOST_NAME`을 localhost나 127.0.0.1로 지정하는 경우, multiple brokers 환경을 구성해서 사용할 수 없습니다. 따라서 현재 할당된 IP를 확인하여, 값으로 설정하였습니다. (`KAFKA_ADVERTISED_LISTENERS에서도 localhost가 아닌 현재 할당된 IP를 넣어줘야 합니다`)
 [참고] : https://hub.docker.com/r/wurstmeister/kafka/
 
-(2) Kafka cluster 구성에서 컨테이너에서 사용할 환경변수인 `KAFKA_ADVERTISED_LISTENERS`과 `KAFKA_LISTENERS`에 대한 정의에서 어려움이 있었습니다.
+(2) Kafka cluster 구성에서 컨테이너에서 사용할 환경변수인 `KAFKA_ADVERTISED_LISTENERS`와 `KAFKA_LISTENERS`에 대한 정의한 이해 및 설정이 필요했습니다.
 
 `KAFKA_ADVERTISED_LISTENERS`의 경우, Producer와 Consumer에게 노출할 주소이며, `KAFKA_LISTENERS`는 Kafka broker가 내부적으로 바인딩하는 주소로 사용이 됩니다. 
-
-(3) Producer에서 데이터를 보낼때 byte로 인코딩해서 전송하고, Consumer에서 byte
-
-(3) Kafka cluster와 Burrow를 연동시킬때 설정 문제
-
-```zsh
-kafka.errors.UnrecognizedBrokerVersion: UnrecognizedBrokerVersion
-```
-solution)
-https://stackoverflow.com/questions/58640045/kafka-python-raise-unrecognizedbrokerversion-error
-
-```zsh
-kafka.errors.KafkaTimeoutError: KafkaTimeoutError: Failed to update metadata after 60.0 secs.
-```
-예상할 수 있는 문제 : broker에 연결이 안되는 상황
-
-localhost 환경에서 docker의 broker로부터 consume이 안되었던 이슈
-
-localhost나 127.0.0.1로 지정하는 경우, multiple brokers 환경을 구성해서 kafka를 사용할 수 없다.
-
-https://hub.docker.com/r/wurstmeister/kafka/
